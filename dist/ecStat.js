@@ -1222,6 +1222,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var binsNumber = threshold(values, minValue, maxValue);
 	        var step = tickStep(minValue, maxValue, binsNumber);
 	        var precision = -Math.floor(Math.log(Math.abs(maxValue - minValue) / binsNumber) / Math.LN10);
+                if (precision < 0) {
+                  precision = -precision;
+                }
 	        
 	        // return the xAxis coordinate for each bins, except the end point of the value
 	        var rangeArray = range(
@@ -1248,7 +1251,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                ? rangeArray[i]
 	                : (maxValue - rangeArray[i-1]) === step
 	                ? maxValue
-	                : rangeArray[i - 1] + step;
+	                : (rangeArray[i - 1] + parseFloat(step));
 	        }
 
 	        for (var i = 0; i < values.length; i++) {
@@ -1259,7 +1262,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        var data = map(bins, function (bin) {
 	            // use function toFixed() to avoid data like '6.5666638489'
-	            return [+((bin.x0 + bin.x1) / 2).toFixed(precision), bin.sample.length];
+	            return [+((bin.x0 + bin.x1) / 2).toFixed(precision+1), bin.sample.length];
 	        });
 
 	        var customData = map(bins, function (bin) {
@@ -1390,7 +1393,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        else if(error >= Math.sqrt(2)) {
 	            step1 *= 2;
 	        }
-	        return +((stop >= start ? step1 : -step1).toFixed(-precision));
+                if (precision<0) {
+                    precision = 0;
+                }
+	        var ret = +((stop >= start ? step1 : -step1).toFixed(precision));
+                if (ret < 0.1) {
+                    ret = 0.1.toFixed(1)
+                }
+                return ret
 
 	    };
 
